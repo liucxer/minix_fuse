@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/liucxer/minix-fuse/fuse/cmd/fuse-abort/internal/mountinfo"
+	"github.com/liucxer/minix_fuse/fuse/cmd/fuse-abort/internal/mountinfo"
 )
 
 func TestOpenError(t *testing.T) {

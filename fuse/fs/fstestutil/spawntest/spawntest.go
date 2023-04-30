@@ -27,7 +27,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/liucxer/minix-fuse/fuse/fs/fstestutil/spawntest/httpjson"
+	"github.com/liucxer/minix_fuse/fuse/fs/fstestutil/spawntest/httpjson"
 	"github.com/tv42/httpunix"
 )
 

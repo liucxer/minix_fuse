@@ -5,8 +5,8 @@ import (
 	"os"
 	"syscall"
 
-	"github.com/liucxer/minix-fuse/fuse"
-	"github.com/liucxer/minix-fuse/fuse/fs"
+	"github.com/liucxer/minix_fuse/fuse"
+	"github.com/liucxer/minix_fuse/fuse/fs"
 )
 
 // SimpleFS is a trivial FS that just implements the Root method.

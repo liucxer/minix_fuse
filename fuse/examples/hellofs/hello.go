@@ -9,9 +9,9 @@ import (
 	"os"
 	"syscall"
 
-	"github.com/liucxer/minix-fuse/fuse"
-	"github.com/liucxer/minix-fuse/fuse/fs"
-	_ "github.com/liucxer/minix-fuse/fuse/fs/fstestutil"
+	"github.com/liucxer/minix_fuse/fuse"
+	"github.com/liucxer/minix_fuse/fuse/fs"
+	_ "github.com/liucxer/minix_fuse/fuse/fs/fstestutil"
 )
 
 func usage() {

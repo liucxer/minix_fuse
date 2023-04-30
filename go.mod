@@ -1,4 +1,4 @@
-module github.com/liucxer/minix-fuse
+module github.com/liucxer/minix_fuse
 
 go 1.18
 

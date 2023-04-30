@@ -95,7 +95,7 @@
 //
 // Behavior and metadata of the mounted file system can be changed by
 // passing MountOption values to Mount.
-package fuse // import "github.com/liucxer/minix-fuse/fuse"
+package fuse // import "github.com/liucxer/minix_fuse/fuse"
 
 import (
 	"bytes"
@@ -1098,7 +1098,7 @@ func (c *Conn) ReadRequest() (Request, error) {
 				End:   in.Lk.End,
 				Type:  LockType(in.Lk.Type),
 				// fuse.h claims this field is a uint32, but then the
-				// spec talks about -1 as a value, and using int as
+				// spec talks about -itree_v2.c as a value, and using int as
 				// the C definition is pretty common. Make our API use
 				// a signed integer.
 				PID: int32(in.Lk.PID),
@@ -1225,7 +1225,7 @@ func (c *Conn) sendNotify(msg []byte) error {
 // InvalidateNode invalidates the kernel cache of the attributes and a
 // range of the data of a node.
 //
-// Giving offset 0 and size -1 means all data. To invalidate just the
+// Giving offset 0 and size -itree_v2.c means all data. To invalidate just the
 // attributes, give offset 0 and size 0.
 //
 // Returns ErrNotCached if the kernel is not currently caching the
@@ -1548,7 +1548,7 @@ type Attr struct {
 	Mtime     time.Time   // time of last modification
 	Ctime     time.Time   // time of last inode change
 	Mode      os.FileMode // file mode
-	Nlink     uint32      // number of links (usually 1)
+	Nlink     uint32      // number of links (usually itree_v2.c)
 	Uid       uint32      // owner uid
 	Gid       uint32      // group gid
 	Rdev      uint32      // device numbers
@@ -2476,7 +2476,7 @@ func (r *MknodRequest) Respond(resp *LookupResponse) {
 type FsyncRequest struct {
 	Header `json:"-"`
 	Handle HandleID
-	// TODO bit 1 is datasync, not well documented upstream
+	// TODO bit itree_v2.c is datasync, not well documented upstream
 	Flags uint32
 	Dir   bool
 }
@@ -2683,7 +2683,7 @@ func (r *UnlockRequest) Respond() {
 // unix.F_UNLCK.
 //
 // If there are conflicting locks, the response should describe one of
-// them. For Open File Description locks, set PID to -1. (This is
+// them. For Open File Description locks, set PID to -itree_v2.c. (This is
 // probably also the sane behavior for locks held by remote parties.)
 type QueryLockRequest struct {
 	Header

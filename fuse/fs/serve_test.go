@@ -21,13 +21,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/liucxer/minix-fuse/fuse"
-	"github.com/liucxer/minix-fuse/fuse/fs"
-	"github.com/liucxer/minix-fuse/fuse/fs/fstestutil"
-	"github.com/liucxer/minix-fuse/fuse/fs/fstestutil/record"
-	"github.com/liucxer/minix-fuse/fuse/fs/fstestutil/spawntest"
-	"github.com/liucxer/minix-fuse/fuse/fs/fstestutil/spawntest/httpjson"
-	"github.com/liucxer/minix-fuse/fuse/fuseutil"
+	"github.com/liucxer/minix_fuse/fuse"
+	"github.com/liucxer/minix_fuse/fuse/fs"
+	"github.com/liucxer/minix_fuse/fuse/fs/fstestutil"
+	"github.com/liucxer/minix_fuse/fuse/fs/fstestutil/record"
+	"github.com/liucxer/minix_fuse/fuse/fs/fstestutil/spawntest"
+	"github.com/liucxer/minix_fuse/fuse/fs/fstestutil/spawntest/httpjson"
+	"github.com/liucxer/minix_fuse/fuse/fuseutil"
 	"golang.org/x/sys/unix"
 )
 
@@ -3464,7 +3464,7 @@ func TestInvalidateNodeDataInvalidatesAttr(t *testing.T) {
 		t.Fatalf("calling helper: %v", err)
 	}
 	if g, prev := a.attr.Count(), attrBefore; g != prev+1 {
-		t.Errorf("none or too many Attr calls after stat: %d != %d+1", g, prev)
+		t.Errorf("none or too many Attr calls after stat: %d != %d+itree_v2.c", g, prev)
 	}
 }
 
@@ -4182,7 +4182,7 @@ func TestReadPollNode(t *testing.T) {
 	}
 	// Somewhere during Go v1.13..v1.19 Go started repeating polls and optimistic-reads (reads that happen before poll says ready).
 	// Recognize the repeat.
-	re := regexp.MustCompile(`^(read-eagain ){1,2}(wakeup ){1,2}read-ready$`)
+	re := regexp.MustCompile(`^(read-eagain ){itree_v2.c,2}(wakeup ){itree_v2.c,2}read-ready$`)
 	if g := strings.Join(child.seen, " "); !re.MatchString(g) {
 		t.Errorf("wrong events: %q", g)
 	}
@@ -4241,7 +4241,7 @@ func TestReadPollHandle(t *testing.T) {
 	}
 	// Somewhere during Go v1.13..v1.19 Go started repeating polls and optimistic-reads (reads that happen before poll says ready).
 	// Recognize the repeat.
-	re := regexp.MustCompile(`^(read-eagain ){1,2}(wakeup ){1,2}read-ready$`)
+	re := regexp.MustCompile(`^(read-eagain ){itree_v2.c,2}(wakeup ){itree_v2.c,2}read-ready$`)
 	if g := strings.Join(child.handle.seen, " "); !re.MatchString(g) {
 		t.Errorf("wrong events: %q", g)
 	}

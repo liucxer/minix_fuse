@@ -9,7 +9,7 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/liucxer/minix-fuse/fuse"
+	"github.com/liucxer/minix_fuse/fuse"
 )
 
 // A Tree implements a basic read-only directory tree for FUSE.

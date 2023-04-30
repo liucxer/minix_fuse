@@ -1,4 +1,4 @@
-package record // import "github.com/liucxer/minix-fuse/fuse/fs/fstestutil/record"
+package record // import "github.com/liucxer/minix_fuse/fuse/fs/fstestutil/record"
 
 import (
 	"context"
@@ -6,8 +6,8 @@ import (
 	"sync/atomic"
 	"syscall"
 
-	"github.com/liucxer/minix-fuse/fuse"
-	"github.com/liucxer/minix-fuse/fuse/fs"
+	"github.com/liucxer/minix_fuse/fuse"
+	"github.com/liucxer/minix_fuse/fuse/fs"
 )
 
 // Writes gathers data from FUSE Write calls.

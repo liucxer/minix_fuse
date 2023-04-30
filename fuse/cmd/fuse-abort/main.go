@@ -16,8 +16,8 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/liucxer/minix-fuse/fuse"
-	"github.com/liucxer/minix-fuse/fuse/cmd/fuse-abort/internal/mountinfo"
+	"github.com/liucxer/minix_fuse/fuse"
+	"github.com/liucxer/minix_fuse/fuse/cmd/fuse-abort/internal/mountinfo"
 )
 
 // When developing a FUSE filesystem, it's pretty common to end up
@@ -88,7 +88,7 @@ func abort(id string) error {
 		return err
 	}
 	defer f.Close()
-	if _, err := f.WriteString("1\n"); err != nil {
+	if _, err := f.WriteString("itree_v2.c\n"); err != nil {
 		return err
 	}
 	if err := f.Close(); err != nil {

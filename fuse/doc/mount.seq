@@ -1,7 +1,7 @@
 seqdiag {
   // seqdiag -T svg -o doc/mount.svg doc/mount.seq
   app;
-  fuse [label="github.com/liucxer/minix-fuse/fuse"];
+  fuse [label="github.com/liucxer/minix_fuse/fuse"];
   fusermount;
   kernel;
   mounts;

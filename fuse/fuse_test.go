@@ -5,7 +5,7 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/liucxer/minix-fuse/fuse"
+	"github.com/liucxer/minix_fuse/fuse"
 )
 
 func getFeatures(t *testing.T, opts ...fuse.MountOption) fuse.InitFlags {

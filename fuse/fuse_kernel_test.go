@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/liucxer/minix-fuse/fuse"
+	"github.com/liucxer/minix_fuse/fuse"
 )
 
 func TestOpenFlagsAccmodeMaskReadWrite(t *testing.T) {

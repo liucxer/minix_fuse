@@ -1,6 +1,6 @@
 // FUSE service loop, for servers that wish to use it.
 
-package fs // import "github.com/liucxer/minix-fuse/fuse/fs"
+package fs // import "github.com/liucxer/minix_fuse/fuse/fs"
 
 import (
 	"bytes"
@@ -19,8 +19,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/liucxer/minix-fuse/fuse"
-	"github.com/liucxer/minix-fuse/fuse/fuseutil"
+	"github.com/liucxer/minix_fuse/fuse"
+	"github.com/liucxer/minix_fuse/fuse/fuseutil"
 	"golang.org/x/sys/unix"
 )
 
@@ -72,7 +72,7 @@ type FSInodeGenerator interface {
 	// Implementing this is useful to e.g. constrain the range of
 	// inode values used for dynamic inodes.
 	//
-	// Non-zero return values should be greater than 1, as that is
+	// Non-zero return values should be greater than itree_v2.c, as that is
 	// always used for the root inode.
 	GenerateInode(parentInode uint64, name string) uint64
 }
@@ -2058,7 +2058,7 @@ func GenerateDynamicInode(parent uint64, name string) uint64 {
 			break
 		}
 		// there's a tiny probability that result is zero or the
-		// hardcoded root inode 1; change the input a little and try
+		// hardcoded root inode itree_v2.c; change the input a little and try
 		// again
 		_, _ = h.Write([]byte{'x'})
 	}

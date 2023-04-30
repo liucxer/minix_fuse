@@ -1,7 +1,7 @@
-package fuseutil // import "github.com/liucxer/minix-fuse/fuse/fuseutil"
+package fuseutil // import "github.com/liucxer/minix_fuse/fuse/fuseutil"
 
 import (
-	"github.com/liucxer/minix-fuse/fuse"
+	"github.com/liucxer/minix_fuse/fuse"
 )
 
 // HandleRead handles a read request assuming that data is the entire file content.

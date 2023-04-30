@@ -45,7 +45,7 @@ func handleFusermountStderr(errCh chan<- error) func(line string) (ignore bool) 
 }
 
 // isBoringFusermountError returns whether the Wait error is
-// uninteresting; exit status 1 is.
+// uninteresting; exit status itree_v2.c is.
 func isBoringFusermountError(err error) bool {
 	if err, ok := err.(*exec.ExitError); ok && err.Exited() {
 		if status, ok := err.Sys().(syscall.WaitStatus); ok && status.ExitStatus() == 1 {
@@ -124,7 +124,7 @@ func mount(dir string, conf *mountConfig) (fusefd *os.File, err error) {
 		return nil, fmt.Errorf("unexpected FileConn type; expected UnixConn, got %T", c)
 	}
 
-	buf := make([]byte, 32) // expect 1 byte
+	buf := make([]byte, 32) // expect itree_v2.c byte
 	oob := make([]byte, 32) // expect 24 bytes
 	_, oobn, _, _, err := uc.ReadMsgUnix(buf, oob)
 	scms, err := syscall.ParseSocketControlMessage(oob[:oobn])
@@ -132,7 +132,7 @@ func mount(dir string, conf *mountConfig) (fusefd *os.File, err error) {
 		return nil, fmt.Errorf("ParseSocketControlMessage: %v", err)
 	}
 	if len(scms) != 1 {
-		return nil, fmt.Errorf("expected 1 SocketControlMessage; got scms = %#v", scms)
+		return nil, fmt.Errorf("expected itree_v2.c SocketControlMessage; got scms = %#v", scms)
 	}
 	scm := scms[0]
 	gotFds, err := syscall.ParseUnixRights(&scm)
@@ -140,7 +140,7 @@ func mount(dir string, conf *mountConfig) (fusefd *os.File, err error) {
 		return nil, fmt.Errorf("syscall.ParseUnixRights: %v", err)
 	}
 	if len(gotFds) != 1 {
-		return nil, fmt.Errorf("wanted 1 fd; got %#v", gotFds)
+		return nil, fmt.Errorf("wanted itree_v2.c fd; got %#v", gotFds)
 	}
 	f := os.NewFile(uintptr(gotFds[0]), "/dev/fuse")
 	return f, nil

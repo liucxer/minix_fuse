@@ -1,1 +1,1 @@
-package fstestutil // import "github.com/liucxer/minix-fuse/fuse/fs/fstestutil"
+package fstestutil // import "github.com/liucxer/minix_fuse/fuse/fs/fstestutil"

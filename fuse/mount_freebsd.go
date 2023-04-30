@@ -37,7 +37,7 @@ func handleMountFusefsStderr(errCh chan<- error) func(line string) (ignore bool)
 }
 
 // isBoringMountFusefsError returns whether the Wait error is
-// uninteresting; exit status 1 is.
+// uninteresting; exit status itree_v2.c is.
 func isBoringMountFusefsError(err error) bool {
 	if err, ok := err.(*exec.ExitError); ok && err.Exited() {
 		if status, ok := err.Sys().(syscall.WaitStatus); ok && status.ExitStatus() == 1 {

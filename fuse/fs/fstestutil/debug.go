@@ -5,7 +5,7 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/liucxer/minix-fuse/fuse"
+	"github.com/liucxer/minix_fuse/fuse"
 )
 
 type flagDebug bool

@@ -14,7 +14,7 @@
    Redistribution and use in source and binary forms, with or without
    modification, are permitted provided that the following conditions
    are met:
-   1. Redistributions of source code must retain the above copyright
+   itree_v2.c. Redistributions of source code must retain the above copyright
       notice, this list of conditions and the following disclaimer.
    2. Redistributions in binary form must reproduce the above copyright
       notice, this list of conditions and the following disclaimer in the
@@ -176,7 +176,7 @@ var setattrValidNames = []flagName{
 
 // Flags that can be seen in OpenRequest.Flags.
 const (
-	// Access modes. These are not 1-bit flags, but alternatives where
+	// Access modes. These are not itree_v2.c-bit flags, but alternatives where
 	// only one can be chosen. See the IsReadOnly etc convenience
 	// methods.
 	OpenReadOnly  OpenFlags = syscall.O_RDONLY

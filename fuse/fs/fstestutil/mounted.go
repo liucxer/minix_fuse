@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/liucxer/minix-fuse/fuse"
-	"github.com/liucxer/minix-fuse/fuse/fs"
+	"github.com/liucxer/minix_fuse/fuse"
+	"github.com/liucxer/minix_fuse/fuse/fs"
 )
 
 // Mount contains information about the mount for the test to use.

@@ -7,8 +7,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/liucxer/minix-fuse/fuse/fs/fstestutil/spawntest"
-	"github.com/liucxer/minix-fuse/fuse/fs/fstestutil/spawntest/httpjson"
+	"github.com/liucxer/minix_fuse/fuse/fs/fstestutil/spawntest"
+	"github.com/liucxer/minix_fuse/fuse/fs/fstestutil/spawntest/httpjson"
 )
 
 var helpers spawntest.Registry

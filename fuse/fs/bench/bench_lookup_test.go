@@ -7,10 +7,10 @@ import (
 	"syscall"
 	"testing"
 
-	"github.com/liucxer/minix-fuse/fuse"
-	"github.com/liucxer/minix-fuse/fuse/fs"
-	"github.com/liucxer/minix-fuse/fuse/fs/fstestutil"
-	"github.com/liucxer/minix-fuse/fuse/fs/fstestutil/spawntest/httpjson"
+	"github.com/liucxer/minix_fuse/fuse"
+	"github.com/liucxer/minix_fuse/fuse/fs"
+	"github.com/liucxer/minix_fuse/fuse/fs/fstestutil"
+	"github.com/liucxer/minix_fuse/fuse/fs/fstestutil/spawntest/httpjson"
 )
 
 type benchLookupDir struct {

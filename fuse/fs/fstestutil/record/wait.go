@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/liucxer/minix-fuse/fuse"
-	"github.com/liucxer/minix-fuse/fuse/fs"
+	"github.com/liucxer/minix_fuse/fuse"
+	"github.com/liucxer/minix_fuse/fuse/fs"
 )
 
 // ReleaseWaiter notes whether a FUSE Release call has been seen.

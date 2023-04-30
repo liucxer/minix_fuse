@@ -1,12 +1,12 @@
 seqdiag {
   app;
-  fuse [label="github.com/liucxer/minix-fuse/fuse"];
+  fuse [label="github.com/liucxer/minix_fuse/fuse"];
   fusermount;
   kernel;
   mounts;
 
   app;
-  fuse [label="github.com/liucxer/minix-fuse/fuse"];
+  fuse [label="github.com/liucxer/minix_fuse/fuse"];
   fusermount;
   kernel;
   mounts;

@@ -9,42 +9,10 @@ import (
 	"os"
 	"syscall"
 
-	"github.com/liucxer/minix-fuse/fuse"
-	"github.com/liucxer/minix-fuse/fuse/fs"
-	_ "github.com/liucxer/minix-fuse/fuse/fs/fstestutil"
+	"github.com/liucxer/minix_fuse/fuse"
+	"github.com/liucxer/minix_fuse/fuse/fs"
+	_ "github.com/liucxer/minix_fuse/fuse/fs/fstestutil"
 )
-
-func usage() {
-	fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
-	fmt.Fprintf(os.Stderr, "  %s MOUNTPOINT\n", os.Args[0])
-	flag.PrintDefaults()
-}
-
-func main() {
-	flag.Usage = usage
-	flag.Parse()
-
-	if flag.NArg() != 1 {
-		usage()
-		os.Exit(2)
-	}
-	mountpoint := flag.Arg(0)
-
-	c, err := fuse.Mount(
-		mountpoint,
-		fuse.FSName("helloworld"),
-		fuse.Subtype("hellofs"),
-	)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer c.Close()
-
-	err = fs.Serve(c, FS{})
-	if err != nil {
-		log.Fatal(err)
-	}
-}
 
 // FS implements the hello world file system.
 type FS struct{}
@@ -91,4 +59,36 @@ func (File) Attr(ctx context.Context, a *fuse.Attr) error {
 
 func (File) ReadAll(ctx context.Context) ([]byte, error) {
 	return []byte(greeting), nil
+}
+
+func usage() {
+	fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
+	fmt.Fprintf(os.Stderr, "  %s MOUNTPOINT\n", os.Args[0])
+	flag.PrintDefaults()
+}
+
+func main() {
+	flag.Usage = usage
+	flag.Parse()
+
+	if flag.NArg() != 1 {
+		usage()
+		os.Exit(2)
+	}
+	mountpoint := flag.Arg(0)
+
+	c, err := fuse.Mount(
+		mountpoint,
+		fuse.FSName("minix_fuse"),
+		fuse.Subtype("minix_fuse"),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer c.Close()
+
+	err = fs.Serve(c, FS{})
+	if err != nil {
+		log.Fatal(err)
+	}
 }
