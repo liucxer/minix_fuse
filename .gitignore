@@ -1,0 +1,11 @@
+.DS_Store
+.idea
+ci
+/tmp/
+/test/*
+main_*
+build/
+*.test
+venv
+*.zip
+*.dat
