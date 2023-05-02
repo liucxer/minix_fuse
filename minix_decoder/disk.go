@@ -2,7 +2,7 @@ package minix_decoder
 
 import (
 	"github.com/sirupsen/logrus"
-	"io/ioutil"
+	"os"
 )
 
 type DiskData struct {
@@ -42,11 +42,25 @@ func (disk *DiskData) Decode(filePath string) error {
 		err error
 	)
 
-	bts, err := ioutil.ReadFile(filePath)
+	f, err := os.Open(filePath)
 	if err != nil {
-		logrus.Errorf("ioutil.ReadFile err:%v, path:%s", err, filePath)
+		logrus.Errorf("os.Open err:%v, path:%s", err, filePath)
 		return err
 	}
+
+	bts := make([]byte, 1024*1024)
+	_, err = f.Read(bts)
+	if err != nil {
+		logrus.Errorf("f.Read err:%v, path:%s", err, filePath)
+		return err
+	}
+	defer func() { _ = f.Close() }()
+
+	//bts, err := ioutil.ReadFile(filePath)
+	//if err != nil {
+	//	logrus.Errorf("ioutil.ReadFile err:%v, path:%s", err, filePath)
+	//	return err
+	//}
 
 	// 解析超级块
 	err = disk.SuperBlock.Decode(disk.SuperBlockData(bts))

@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 	"syscall"
+	"time"
 
 	"github.com/liucxer/minix_fuse/fuse"
 	"github.com/liucxer/minix_fuse/fuse/fs"
@@ -30,18 +31,95 @@ type Dir struct {
 	InodeNo int64
 }
 
-func (Dir) Attr(ctx context.Context, a *fuse.Attr) error {
-	file := FileMap[0]
+func GetAttrFromDecoderFile(file minix_decoder.File, a *fuse.Attr) error {
+	var (
+		err error
+	)
+
+	/*
+		Blocks    uint64      // size in 512-byte units
+		Rdev      uint32      // device numbers
+		BlockSize uint32      // preferred blocksize for filesystem I/O
+		Flags     AttrFlags
+	*/
+	a.Valid = time.Duration(0)
 	a.Inode = uint64(file.InodeNo)
-	a.Mode = os.FileMode(file.Inode.Mode)
-	return nil
+	a.Size = uint64(file.Inode.Size)
+	a.Atime = time.Unix(int64(file.Inode.Time), 0)
+	a.Mtime = time.Unix(int64(file.Inode.Time), 0)
+	a.Ctime = time.Unix(int64(file.Inode.Time), 0)
+	a.Nlink = uint32(file.Inode.NLinks)
+	a.Uid = uint32(file.Inode.Uid)
+	a.Gid = uint32(file.Inode.Gid)
+	/*
+		mode处理
+	*/
+	switch file.Inode.Mode.FileType() {
+	case minix_decoder.FILE_TYPE_IFREG:
+		a.Mode |= os.ModeType
+	case minix_decoder.FILE_TYPE_IFBLK:
+		a.Mode |= os.ModeDevice
+	case minix_decoder.FILE_TYPE_IFDIR:
+		a.Mode |= os.ModeDir
+	case minix_decoder.FILE_TYPE_IFCHAR:
+		a.Mode |= os.ModeCharDevice
+	case minix_decoder.FILE_TYPE_IFIFO:
+		a.Mode |= os.ModeNamedPipe
+	}
+
+	if file.Inode.Mode.ISUID() {
+		a.Mode |= os.ModeSetuid
+	}
+	if file.Inode.Mode.ISGID() {
+		a.Mode |= os.ModeSetgid
+	}
+	if file.Inode.Mode.ISVTX() {
+		a.Mode |= os.ModeAppend
+	}
+	a.Mode |= os.FileMode(file.Inode.Mode.RGW())
+
+	logrus.Infof("Attr:%+v", a)
+	return err
 }
 
-func (Dir) Lookup(ctx context.Context, name string) (fs.Node, error) {
-	if name == "hello" {
-		return File{}, nil
+func (dir Dir) Attr(ctx context.Context, attr *fuse.Attr) error {
+	file, ok := FileMap[dir.InodeNo]
+	if !ok {
+		logrus.Errorf("inodeNo %d not exist", dir.InodeNo)
+		return fmt.Errorf("inodeNo %d not exist", dir.InodeNo)
 	}
-	return nil, syscall.ENOENT
+
+	err := GetAttrFromDecoderFile(file, attr)
+	if err != nil {
+		logrus.Errorf("GetAttrFromDecoderFile err:%v", err)
+		return err
+	}
+
+	return err
+}
+
+func (dir Dir) Lookup(ctx context.Context, name string) (fs.Node, error) {
+	var (
+		node fs.Node
+	)
+	parentDir, ok := FileMap[dir.InodeNo]
+	if !ok {
+		logrus.Errorf("parentDir inodeNo %d not exist", dir.InodeNo)
+		return node, fmt.Errorf("parentDir inodeNo %d not exist", dir.InodeNo)
+	}
+
+	subInodeNo := int64(0)
+	for _, file := range parentDir.Files {
+		if name == file.Path {
+			subInodeNo = file.InodeNo
+			break
+		}
+	}
+
+	return File{
+		InodeNo: subInodeNo,
+		Name:    name,
+	}, syscall.ENOENT
 }
 
 func (dir Dir) ReadDirAll(ctx context.Context) ([]fuse.Dirent, error) {
@@ -50,7 +128,11 @@ func (dir Dir) ReadDirAll(ctx context.Context) ([]fuse.Dirent, error) {
 		dirents []fuse.Dirent
 	)
 
-	file := FileMap[dir.InodeNo]
+	file, ok := FileMap[dir.InodeNo]
+	if !ok {
+		logrus.Errorf("inodeNo %d not exist", dir.InodeNo)
+		return dirents, fmt.Errorf("inodeNo %d not exist", dir.InodeNo)
+	}
 	for _, subFile := range file.Files {
 		var dirent fuse.Dirent
 		dirent.Inode = uint64(subFile.InodeNo)
@@ -67,15 +149,27 @@ func (dir Dir) ReadDirAll(ctx context.Context) ([]fuse.Dirent, error) {
 }
 
 // File implements both Node and Handle for the hello file.
-type File struct{}
+type File struct {
+	InodeNo int64
+	Name    string
+}
 
 const greeting = "hello, world\n"
 
-func (File) Attr(ctx context.Context, a *fuse.Attr) error {
-	a.Inode = 2
-	a.Mode = 0o444
-	a.Size = uint64(len(greeting))
-	return nil
+func (file File) Attr(ctx context.Context, a *fuse.Attr) error {
+	decoderFile, ok := FileMap[file.InodeNo]
+	if !ok {
+		logrus.Errorf("inodeNo %d not exist", file.InodeNo)
+		return fmt.Errorf("inodeNo %d not exist", file.InodeNo)
+	}
+
+	err := GetAttrFromDecoderFile(decoderFile, a)
+	if err != nil {
+		logrus.Errorf("GetAttrFromDecoderFile err:%v", err)
+		return err
+	}
+
+	return err
 }
 
 func (File) ReadAll(ctx context.Context) ([]byte, error) {

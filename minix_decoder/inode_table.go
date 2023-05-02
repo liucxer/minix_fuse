@@ -41,31 +41,67 @@ import (
 //#define S_IWOTH 00002		// 其他人写许可。
 //#define S_IXOTH 00001		// 其他人执行/搜索许可。
 
+// Mode 总共16位   前面4位：文件类型    中间3位：文件属性位   后9位: 代表权限
 type Mode uint16
+
+type FileType int64
+
+const (
+	FILE_TYPE_IFREG  FileType = 8
+	FILE_TYPE_IFBLK           = 6
+	FILE_TYPE_IFDIR           = 4
+	FILE_TYPE_IFCHAR          = 2
+	FILE_TYPE_IFIFO           = 1
+)
+
+func (m Mode) FileType() FileType {
+	fileType := FileType(m >> 12)
+	return fileType
+}
+
+func (m Mode) ISUID() bool {
+	tmp := (m << 4) >> 9
+	return tmp == 0x4
+}
+
+func (m Mode) ISGID() bool {
+	tmp := (m << 4) >> 9
+	return tmp == 0x2
+}
+
+func (m Mode) ISVTX() bool {
+	tmp := (m << 4) >> 9
+	return tmp == 0x1
+}
+
+func (m Mode) RGW() uint32 {
+	tmp := m & 0x1F
+	return uint32(tmp)
+}
 
 // IsReg 是普通文件
 func (m Mode) IsReg() bool {
-	return m&0xFF00 == 0x8100
+	return m&0xF000 == 0x8000
 }
 
 // IsBlk 是块设备
 func (m Mode) IsBlk() bool {
-	return m&0xFF00 == 0x6100
+	return m&0xF000 == 0x6000
 }
 
 // IsDir 是目录
 func (m Mode) IsDir() bool {
-	return m&0xFF00 == 0x4100
+	return m&0xF000 == 0x4000
 }
 
 // IsChar 是字符设备
 func (m Mode) IsChar() bool {
-	return m&0xFF00 == 0x2100
+	return m&0xF000 == 0x2000
 }
 
 // IsFIFO 是管道文件
 func (m Mode) IsFIFO() bool {
-	return m&0xFF00 == 0x1100
+	return m&0xF000 == 0x1000
 }
 
 // Inode  683K大小
