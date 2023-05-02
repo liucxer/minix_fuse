@@ -1,5 +1,7 @@
 package minix_decoder
 
+import "github.com/sirupsen/logrus"
+
 type File struct {
 	Inode   Inode
 	Path    string
@@ -17,10 +19,18 @@ func GetFileMap(devicePath string) (map[int64]File, error) {
 	err = disk.Decode(devicePath)
 
 	inodeMap := map[int64]string{}
+	inodeMap[0] = "/"
 	for _, inodeItem := range disk.InodeTable.InodeItems {
 		if inodeItem.Mode.IsDir() {
 			for _, dir := range inodeItem.DirEntry {
-				inodeMap[int64(dir.InodeNo)] = dir.String()
+				_, ok := inodeMap[int64(dir.InodeNo)]
+				if ok {
+					if dir.String() != "." && dir.String() != ".." {
+						inodeMap[int64(dir.InodeNo)] = dir.String()
+					}
+				} else {
+					inodeMap[int64(dir.InodeNo)] = dir.String()
+				}
 			}
 		}
 	}
@@ -34,9 +44,9 @@ func GetFileMap(devicePath string) (map[int64]File, error) {
 
 		var file File
 		file.Inode = tmpInodeItem.Inode
-		file.Path = inodeMap[int64(i)]
+		file.Path = inodeMap[int64(i+1)]
 		file.Data = string(tmpInodeItem.Data)
-		file.InodeNo = int64(i)
+		file.InodeNo = int64(i + 1)
 
 		var subFiles []File
 		for _, dentry := range tmpInodeItem.DirEntry {
@@ -53,5 +63,6 @@ func GetFileMap(devicePath string) (map[int64]File, error) {
 	for _, file := range files {
 		fileMap[file.InodeNo] = file
 	}
+	logrus.Infof("fileMap:%+v", fileMap)
 	return fileMap, err
 }

@@ -9,7 +9,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"log"
 	"os"
-	"syscall"
 	"time"
 
 	"github.com/liucxer/minix_fuse/fuse"
@@ -23,12 +22,14 @@ type FS struct{}
 func (FS) Root() (fs.Node, error) {
 	return Dir{
 		InodeNo: 0,
+		Name:    "/",
 	}, nil
 }
 
 // Dir implements both Node and Handle for the root directory.
 type Dir struct {
 	InodeNo int64
+	Name    string
 }
 
 func GetAttrFromDecoderFile(file minix_decoder.File, a *fuse.Attr) error {
@@ -56,7 +57,7 @@ func GetAttrFromDecoderFile(file minix_decoder.File, a *fuse.Attr) error {
 	*/
 	switch file.Inode.Mode.FileType() {
 	case minix_decoder.FILE_TYPE_IFREG:
-		a.Mode |= os.ModeType
+		//a.Mode |= os.ModeType
 	case minix_decoder.FILE_TYPE_IFBLK:
 		a.Mode |= os.ModeDevice
 	case minix_decoder.FILE_TYPE_IFDIR:
@@ -78,7 +79,7 @@ func GetAttrFromDecoderFile(file minix_decoder.File, a *fuse.Attr) error {
 	}
 	a.Mode |= os.FileMode(file.Inode.Mode.RGW())
 
-	logrus.Infof("Attr:%+v", a)
+	logrus.Infof("Attr file.Path:%s, file:%d", file.Path, file.Inode.Mode)
 	return err
 }
 
@@ -116,10 +117,27 @@ func (dir Dir) Lookup(ctx context.Context, name string) (fs.Node, error) {
 		}
 	}
 
+	subFile, ok := FileMap[subInodeNo]
+	if !ok {
+		logrus.Errorf("subFile inodeNo %d not exist", subInodeNo)
+		return node, fmt.Errorf("subFile inodeNo %d not exist", subInodeNo)
+	}
+
+	if subFile.Inode.Mode.IsDir() {
+		return Dir{
+			InodeNo: subInodeNo,
+			Name:    name,
+		}, nil
+	} else if subFile.Inode.Mode.IsReg() {
+		return File{
+			InodeNo: subInodeNo,
+			Name:    name,
+		}, nil
+	}
 	return File{
-		InodeNo: subInodeNo,
-		Name:    name,
-	}, syscall.ENOENT
+		InodeNo: 0,
+		Name:    "/",
+	}, nil
 }
 
 func (dir Dir) ReadDirAll(ctx context.Context) ([]fuse.Dirent, error) {
@@ -138,11 +156,19 @@ func (dir Dir) ReadDirAll(ctx context.Context) ([]fuse.Dirent, error) {
 		dirent.Inode = uint64(subFile.InodeNo)
 		dirent.Name = subFile.Path
 		subfile := FileMap[subFile.InodeNo]
-		if subfile.Inode.Mode.IsDir() {
-			dirent.Type = fuse.DT_Dir
-		} else if subfile.Inode.Mode.IsReg() {
+		switch subfile.Inode.Mode.FileType() {
+		case minix_decoder.FILE_TYPE_IFREG:
 			dirent.Type = fuse.DT_File
+		case minix_decoder.FILE_TYPE_IFBLK:
+			dirent.Type = fuse.DT_Block
+		case minix_decoder.FILE_TYPE_IFDIR:
+			dirent.Type = fuse.DT_Dir
+		case minix_decoder.FILE_TYPE_IFCHAR:
+			dirent.Type = fuse.DT_Char
+		case minix_decoder.FILE_TYPE_IFIFO:
+			dirent.Type = fuse.DT_FIFO
 		}
+
 		dirents = append(dirents, dirent)
 	}
 	return dirents, err
@@ -153,8 +179,6 @@ type File struct {
 	InodeNo int64
 	Name    string
 }
-
-const greeting = "hello, world\n"
 
 func (file File) Attr(ctx context.Context, a *fuse.Attr) error {
 	decoderFile, ok := FileMap[file.InodeNo]
@@ -172,8 +196,14 @@ func (file File) Attr(ctx context.Context, a *fuse.Attr) error {
 	return err
 }
 
-func (File) ReadAll(ctx context.Context) ([]byte, error) {
-	return []byte(greeting), nil
+func (file File) ReadAll(ctx context.Context) ([]byte, error) {
+	tmpFile, ok := FileMap[file.InodeNo]
+	if !ok {
+		logrus.Errorf("inodeNo %d not exist", file.InodeNo)
+		return []byte{}, fmt.Errorf("inodeNo %d not exist", file.InodeNo)
+	}
+
+	return []byte(tmpFile.Data), nil
 }
 
 func usage() {
@@ -215,6 +245,7 @@ func main() {
 		logrus.Errorf("minix_decoder.GetFiles err:%v", err)
 		return
 	}
+	fileMap[0] = fileMap[1]
 	FileMap = fileMap
 
 	err = fs.Serve(c, FS{})

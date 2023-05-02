@@ -55,6 +55,12 @@ const (
 )
 
 func (m Mode) FileType() FileType {
+	//#define S_IFMT 00170000		// 文件类型（8 进制表示）。
+	//#define S_IFREG 0100000		// 常规文件。
+	//#define S_IFBLK 0060000		// 块特殊（设备）文件，如磁盘dev/fd0。
+	//#define S_IFDIR 0040000		// 目录文件。
+	//#define S_IFCHR 0020000		// 字符设备文件。
+	//#define S_IFIFO 0010000		// FIFO 特殊文件。
 	fileType := FileType(m >> 12)
 	return fileType
 }
@@ -75,7 +81,7 @@ func (m Mode) ISVTX() bool {
 }
 
 func (m Mode) RGW() uint32 {
-	tmp := m & 0x1F
+	tmp := m & 0x1FF
 	return uint32(tmp)
 }
 

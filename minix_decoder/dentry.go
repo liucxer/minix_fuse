@@ -1,7 +1,5 @@
 package minix_decoder
 
-import "fmt"
-
 /*
 // 文件目录项结构。
 struct dir_entry
@@ -27,5 +25,5 @@ func (m DirEntry) String() string {
 		bts = append(bts, byte(b))
 	}
 
-	return fmt.Sprintf("DirEntry inodeNo:%d, Name:%s", m.InodeNo, string(bts))
+	return string(bts)
 }
