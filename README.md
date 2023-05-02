@@ -14,26 +14,63 @@ centos 7.9最小化安装, 下载地址： [centos7.9](https://mirrors.aliyun.co
 CentOS Linux release 7.9.2009 (Core)
 [root@liucx-centos79 ~]# uname -r
 3.10.0-1160.el7.x86_64
+
+切换4.14.179内核
 ```
 
-安装步骤
-```shell
-yum install -y gcc
-yum install -y kernel-devel
-```
+### 安装步骤
 
-```shell
-[root@liucx-centos7 ~]# uname -r
-4.14.179-1.el7.x86_64
-[root@liucx-centos7 ~]# uname -a
-Linux liucx-centos7.9.novalocal 4.14.179-1.el7.x86_64 #1 SMP Tue May 12 02:22:15 EDT 2020 x86_64 x86_64 x86_64 GNU/Linux
-
-centos7.9 安装4.14.179内核
-
-```
-
-## 编译minix驱动
+#### 编译并安装minix驱动
 ```shell
 make CONFIG_MINIX_FS=m -C /usr/src/kernels/3.10.0-1160.88.1.el7.x86_64 M=/usr/src/kernels/3.10.0-1160.88.1.el7.x86_64/fs/minix
 insmod ./minix.ko # 安装驱动
 ```
+
+```shell
+yum install -y gcc
+yum install -y wget
+yum install -y vim 
+yum install -y fuse
+```
+
+#### 安装golang 1.18版本
+```shell
+wget https://go.dev/dl/go1.18.10.linux-amd64.tar.gz
+[root@linux-centos79 ~]# cat ~/.bash_profile 
+# .bash_profile
+
+# Get the aliases and functions
+if [ -f ~/.bashrc ]; then
+        . ~/.bashrc
+fi
+
+# User specific environment and startup programs
+
+PATH=$PATH:$HOME/bin
+
+export PATH
+export GO111MODULE=on
+export GOPROXY=https://goproxy.cn
+export GOPATH=/root/gopath/
+export GOROOT=/root/go
+export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+```
+
+#### 编译
+```shell
+liuchangxi@5c1bf473e937 minix_fuse % CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build .
+liuchangxi@5c1bf473e937 minix_fuse % ls
+README.md       fuse            go.mod          go.sum          main.go         minix           minix_decoder   minix_fuse
+```
+
+#### 运行
+```shell
+dd if=/dev/zero of=/dev/vdb bs=1M count=1024
+mkfs.minix /dev/vdb
+mount /dev/vdb /mnt
+touch /mnt/111
+echo "222" >> /mnt/111
+umount /mnt/
+./minix_fuse /mnt /dev/vdb
+```
+
