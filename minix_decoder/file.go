@@ -1,6 +1,10 @@
 package minix_decoder
 
-import "github.com/sirupsen/logrus"
+import (
+	"bytes"
+	"encoding/binary"
+	"github.com/sirupsen/logrus"
+)
 
 type File struct {
 	Inode   Inode
@@ -8,6 +12,45 @@ type File struct {
 	Data    string
 	InodeNo int64
 	Files   []File
+}
+
+func (file *File) ReadData(bts []byte) error {
+	var err error
+	var fileData []byte
+	for i := 0; i < 7; i++ {
+		if file.Inode.Zone[i] == 0 {
+			break
+		}
+		start := int64(file.Inode.Zone[i]) * 1024
+		end := int64(file.Inode.Zone[i])*1024 + 1024
+		data := bts[start:end]
+		fileData = append(fileData, data...)
+	}
+
+	if file.Inode.Zone[7] != 0 {
+		start := file.Inode.Zone[7] * 1024
+		end := file.Inode.Zone[7]*1024 + 1024
+		inodeTable := bts[start:end]
+		zoneList := make([]uint16, 1024/16)
+		buf := bytes.NewBuffer(inodeTable)
+		err := binary.Read(buf, binary.LittleEndian, &zoneList)
+		if err != nil {
+			logrus.Errorf("binary.Read err:%v", err)
+			return err
+		}
+
+		for _, item := range zoneList {
+			if item == 0 {
+				break
+			}
+			start := item * 1024
+			end := item*1024 + 1024
+			fileData = append(fileData, bts[start:end]...)
+		}
+	}
+
+	file.Data = string(fileData)
+	return err
 }
 
 func GetFileMap(devicePath string) (map[int64]File, error) {

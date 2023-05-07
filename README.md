@@ -8,60 +8,52 @@
 
 ## 安装
 ### 环境要求
-centos 7.9最小化安装, 下载地址： [centos7.9](https://mirrors.aliyun.com/centos/7.9.2009/isos/x86_64/CentOS-7-x86_64-Minimal-2009.iso)。 
+centos 8.5最小化安装, 下载地址： [centos8.5](https://mirrors.aliyun.com/centos/8.5.2111/isos/x86_64/CentOS-8.5.2111-x86_64-dvd1.iso)。 选择最小化安装 
 ```shell
-[root@liucx-centos79 ~]# cat /etc/system-release
-CentOS Linux release 7.9.2009 (Core)
-[root@liucx-centos79 ~]# uname -r
-3.10.0-1160.el7.x86_64
-
-切换4.14.179内核
+[root@MiWiFi-RA72-srv minix]# uname -r
+4.18.0-348.el8.x86_64
+[root@MiWiFi-RA72-srv minix]# cat /etc/system-release
+CentOS Linux release 8.5.2111
 ```
 
 ### 安装步骤
 
 #### 编译并安装minix驱动
 ```shell
-make CONFIG_MINIX_FS=m -C /usr/src/kernels/3.10.0-1160.88.1.el7.x86_64 M=/usr/src/kernels/3.10.0-1160.88.1.el7.x86_64/fs/minix
-insmod ./minix.ko # 安装驱动
-```
-
-```shell
-yum install -y gcc
-yum install -y wget
-yum install -y vim 
-yum install -y fuse
+cd /etc/yum.repos.d/
+sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
+sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
+yum install -y vim
+wget https://vault.centos.org/8.5.2111/BaseOS/Source/SPackages/kernel-4.18.0-348.el8.src.rpm
+rpm -ivh kernel-4.18.0-348.el8.src.rpm 
+cp ./rpmbuild/SOURCES/linux-4.18.0-348.el8.tar.xz .
+xz -d ./linux-4.18.0-348.el8.tar.xz 
+tar -xvf ./linux-4.18.0-348.el8.tar 
+cd linux-4.18.0-348.el8/fs/minix/
+yum install -y kernel-devel
+cp -rf * /usr/src/kernels/4.18.0-348.7.1.el8_5.x86_64/fs/minix/
+yum install gcc -y
+yum install make -y
+yum install -y elfutils-libelf-devel
+make CONFIG_MINIX_FS=m -C /usr/src/kernels/4.18.0-348.7.1.el8_5.x86_64 M=/usr/src/kernels/4.18.0-348.7.1.el8_5.x86_64/fs/minix
+cd /usr/src/kernels/4.18.0-348.7.1.el8_5.x86_64/fs/minix
+insmod ./minix.ko
+mkfs.minix /dev/sdb
+mount /dev/sdb /mnt/
 ```
 
 #### 安装golang 1.18版本
 ```shell
 wget https://go.dev/dl/go1.18.10.linux-amd64.tar.gz
-[root@linux-centos79 ~]# cat ~/.bash_profile 
-# .bash_profile
-
-# Get the aliases and functions
-if [ -f ~/.bashrc ]; then
-        . ~/.bashrc
-fi
-
-# User specific environment and startup programs
-
-PATH=$PATH:$HOME/bin
-
-export PATH
-export GO111MODULE=on
-export GOPROXY=https://goproxy.cn
-export GOPATH=/root/gopath/
-export GOROOT=/root/go
-export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+tar -zxvf ./go1.18.10.linux-amd64.tar.gz
+echo "export GO111MODULE=on" >> ~/.bash_profile
+echo "export GOPROXY=https://goproxy.cn" >> ~/.bash_profile 
+echo "export GOPATH=/root/gopath/" >> ~/.bash_profile 
+echo "export GOROOT=/root/go" >> ~/.bash_profile 
+echo "export PATH=$PATH:$GOROOT/bin:$GOPATH/bin" >> ~/.bash_profile  
+source ~/.bash_profile 
 ```
 
-#### 编译
-```shell
-liuchangxi@5c1bf473e937 minix_fuse % CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build .
-liuchangxi@5c1bf473e937 minix_fuse % ls
-README.md       fuse            go.mod          go.sum          main.go         minix           minix_decoder   minix_fuse
-```
 
 #### 运行
 ```shell

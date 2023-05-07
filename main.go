@@ -202,7 +202,7 @@ func (file File) ReadAll(ctx context.Context) ([]byte, error) {
 		logrus.Errorf("inodeNo %d not exist", file.InodeNo)
 		return []byte{}, fmt.Errorf("inodeNo %d not exist", file.InodeNo)
 	}
-
+	
 	return []byte(tmpFile.Data), nil
 }
 

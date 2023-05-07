@@ -48,19 +48,13 @@ func (disk *DiskData) Decode(filePath string) error {
 		return err
 	}
 
-	bts := make([]byte, 1024*1024)
+	bts := make([]byte, 2*1024*1024)
 	_, err = f.Read(bts)
 	if err != nil {
 		logrus.Errorf("f.Read err:%v, path:%s", err, filePath)
 		return err
 	}
 	defer func() { _ = f.Close() }()
-
-	//bts, err := ioutil.ReadFile(filePath)
-	//if err != nil {
-	//	logrus.Errorf("ioutil.ReadFile err:%v, path:%s", err, filePath)
-	//	return err
-	//}
 
 	// 解析超级块
 	err = disk.SuperBlock.Decode(disk.SuperBlockData(bts))
