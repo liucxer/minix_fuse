@@ -5,6 +5,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/liucxer/minix_fuse/logger"
 	"github.com/liucxer/minix_fuse/minix_decoder"
 	"github.com/sirupsen/logrus"
 	"log"
@@ -202,7 +203,7 @@ func (file File) ReadAll(ctx context.Context) ([]byte, error) {
 		logrus.Errorf("inodeNo %d not exist", file.InodeNo)
 		return []byte{}, fmt.Errorf("inodeNo %d not exist", file.InodeNo)
 	}
-	
+
 	return []byte(tmpFile.Data), nil
 }
 
@@ -215,6 +216,8 @@ func usage() {
 var FileMap map[int64]minix_decoder.File
 
 func main() {
+	logger.InitLogger()
+
 	flag.Usage = usage
 	flag.Parse()
 
@@ -248,7 +251,16 @@ func main() {
 	fileMap[0] = fileMap[1]
 	FileMap = fileMap
 
-	err = fs.Serve(c, FS{})
+	fsServer := fs.New(c, &fs.Config{
+		Debug: func(msg interface{}) {
+			logrus.Infof("msg:%+v", msg)
+		},
+		WithContext: func(ctx context.Context, req fuse.Request) context.Context {
+			logrus.Infof("--------------------------------------------------------")
+			return ctx
+		},
+	})
+	err = fsServer.Serve(FS{})
 	if err != nil {
 		logrus.Errorf("fs.Serve err:%v", err)
 		return

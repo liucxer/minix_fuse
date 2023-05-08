@@ -40,6 +40,7 @@ cd /usr/src/kernels/4.18.0-348.7.1.el8_5.x86_64/fs/minix
 insmod ./minix.ko
 mkfs.minix /dev/sdb
 mount /dev/sdb /mnt/
+yum install -y fuse3
 ```
 
 #### 安装golang 1.18版本

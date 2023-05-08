@@ -8,7 +8,6 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"hash/fnv"
 	"io"
 	"log"
@@ -510,7 +509,6 @@ func (s *Server) Serve(fs FS) error {
 
 	for {
 		req, err := s.conn.ReadRequest()
-		logrus.Infof("ReadRequest req:%s", req)
 		if err != nil {
 			if err == io.EOF {
 				break
