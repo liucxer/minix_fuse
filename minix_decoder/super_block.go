@@ -3,10 +3,12 @@ package minix_decoder
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 	"github.com/sirupsen/logrus"
+	"os"
 )
 
-// SuperBlock 超级块 1K大小
+// SuperBlock  超级块 1K大小 磁盘结构和内存结构一致
 type SuperBlock struct {
 	InodeNum             uint16 /* total number of inodes */        // 0x5560  = 21856 inodes
 	ZoneNum              uint16 /* total number of zones */         // 0xffff  = 65535 blocks
@@ -29,6 +31,77 @@ func (superBlock *SuperBlock) Decode(bts []byte) error {
 	if err != nil {
 		logrus.Errorf("binary.Read err:%v", err)
 		return err
+	}
+	return err
+}
+
+func (superBlock *SuperBlock) Encode() ([]byte, error) {
+	var (
+		err error
+		bts []byte
+	)
+	buf := bytes.NewBuffer(bts)
+	err = binary.Write(buf, binary.LittleEndian, *superBlock)
+	if err != nil {
+		logrus.Errorf("binary.Read err:%v", err)
+		return bts, err
+	}
+	return buf.Bytes(), err
+}
+
+func (superBlock *SuperBlock) Load(fd *os.File) error {
+	var (
+		err error
+		n   int
+	)
+
+	bts := make([]byte, 1024)
+	n, err = fd.ReadAt(bts, 1024)
+	if err != nil {
+		logrus.Errorf("fd.ReadAt(bts, 1024) err:%v", err)
+		return err
+	}
+
+	if n != 1024 {
+		logrus.Errorf("ReadAt n != 1024")
+		return fmt.Errorf("ReadAt n != 1024")
+	}
+
+	err = superBlock.Decode(bts)
+	if err != nil {
+		logrus.Errorf("superBlock.Decode err:%v", err)
+		return err
+	}
+
+	return err
+}
+
+func (superBlock *SuperBlock) Save(fd *os.File) error {
+	var (
+		err error
+		bts []byte
+		n   int
+	)
+
+	bts, err = superBlock.Encode()
+	if err != nil {
+		logrus.Errorf("superBlock.Encode err:%v", err)
+		return err
+	}
+
+	writeBts := make([]byte, 1024)
+	for i := 0; i < len(bts); i++ {
+		writeBts[i] = bts[i]
+	}
+	n, err = fd.WriteAt(writeBts, 1024)
+	if err != nil {
+		logrus.Errorf("fd.WriteAt err:%v", err)
+		return err
+	}
+
+	if n != 1024 {
+		logrus.Errorf("WriteAt n != 1024")
+		return fmt.Errorf("WriteAt n != 1024")
 	}
 	return err
 }

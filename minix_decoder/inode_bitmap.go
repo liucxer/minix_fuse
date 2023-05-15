@@ -3,6 +3,8 @@ package minix_decoder
 import (
 	"bytes"
 	"encoding/binary"
+	"errors"
+	"fmt"
 	"github.com/sirupsen/logrus"
 	"strconv"
 )
@@ -10,6 +12,10 @@ import (
 // InodeBitMap  3K大小
 type InodeBitMap struct {
 	InodeMap []bool
+}
+
+// DiskInodeBitMap inodeBitMap的磁盘结构 3K大小
+type DiskInodeBitMap struct {
 }
 
 func (inodeBitMap *InodeBitMap) String() string {
@@ -87,4 +93,35 @@ func (inodeBitMap *InodeBitMap) Decode(bts []byte, inodeNum int64) error {
 	}
 
 	return err
+}
+
+// Load 从磁盘加载到内存
+func (inodeBitMap *InodeBitMap) Load() (int64, error) {
+	return 0, nil
+}
+
+// Save 将内存数据刷到磁盘
+func (inodeBitMap *InodeBitMap) Save() (int64, error) {
+	return 0, nil
+}
+
+// Apply 申请inode bit
+func (inodeBitMap *InodeBitMap) Apply() (int64, error) {
+	for i := 0; i < len(inodeBitMap.InodeMap); i++ {
+		if !inodeBitMap.InodeMap[i] {
+			return int64(i), nil
+		}
+	}
+
+	return 0, errors.New("no more inode bit")
+}
+
+// Release 释放inode bit
+func (inodeBitMap *InodeBitMap) Release(offset int64) error {
+	if len(inodeBitMap.InodeMap) < int(offset+1) {
+		return fmt.Errorf("inodeBitMap Release error. length not enougth. %d < %d", len(inodeBitMap.InodeMap), int(offset+1))
+	}
+	inodeBitMap.InodeMap[offset] = false
+
+	return nil
 }
